@@ -19,17 +19,17 @@ class UsersController {
 
     await database.run("insert into users (name, email, password) values (?, ?, ?)", [name, email, hashedPassword]);
 
-    response.status(201).json({ name, email, hashedPassword });
+    return response.status(201).json({ name, email, hashedPassword });
   }
 
   async update(request, response) {
     const { name, email, password, old_password } = request.body;
-    const { id } = request.params;
+    const user_id = request.user.id;
 
     const db = await sqliteConnection();
-    const user = await db.get("select * from users where id = (?)", [id]);
+    const user = await db.get("select * from users where id = (?)", [user_id]);
 
-    console.log(id, user);
+    console.log(user_id, user);
     
     if(!user) throw new AppError("Usuário inexistente.")
 
@@ -50,9 +50,9 @@ class UsersController {
       user.password = await hash(password, 8);
     }
 
-    await db.run("update users set name = ?, email = ?, updated_at = DATETIME('now'), password = ? where id = ?", [user.name, user.email, user.password, id]);
+    await db.run("update users set name = ?, email = ?, updated_at = DATETIME('now'), password = ? where id = ?", [user.name, user.email, user.password, user_id]);
 
-    response.status(200).json(user);
+    return response.status(200).json(user);
   }
 }
 
