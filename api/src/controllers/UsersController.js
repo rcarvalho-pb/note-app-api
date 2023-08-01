@@ -6,10 +6,6 @@ class UsersController {
   async create(request, response) {
     const { name, email, password } = request.body;
 
-    // if(!name) {
-    //   throw new AppError("Nome é obrigatório.");
-    // }
-
     const database = await sqliteConnection();
     const checkExistUser = await database.get("select * from users where email = (?)", [email]);
 
